@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 
-class UserSchema(TypedDict):
+class User(TypedDict):
     id: str
     firstName: str
     lastName: str

@@ -1,2 +1,6 @@
 # VS Code
 .vscode/
+
+# Misc
+.DS_STORE
+
