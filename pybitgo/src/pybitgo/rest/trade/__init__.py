@@ -1,11 +1,23 @@
 from typing import Iterator, List, Optional
 
-from pybitgo.trade.rest.schema import Account, Balance, Order, Trade, User
+from pybitgo.rest.trade.schema import (
+    Account,
+    Balance,
+    Currency,
+    Level1,
+    Level2,
+    Order,
+    Trade,
+    User,
+)
+from pybitgo.rest.trade.schema.product import Product
 from requests import Response, Session
 
 
 class BitGoRESTClient:
-    def __init__(self, token: str, base_url: str = "https://app.bitgo.com"):
+    def __init__(
+        self, token: str, base_url: str = "https://app.bitgo.com/api/prime/trading/v1"
+    ):
 
         self.token = token
         self.base_url = base_url
@@ -34,7 +46,7 @@ class BitGoRESTClient:
         Returns: GetCurrentUserResponseSchema
         """
 
-        return self.request("GET", "/api/prime/trading/v1/user/current", {}, {}).json()
+        return self.request("GET", "/user/current", {}, {}).json()
 
     def list_accounts(self) -> List[Account]:
         """Get the list of trading accounts that the current user belongs to.
@@ -42,9 +54,7 @@ class BitGoRESTClient:
         Returns: List[Account]
         """
 
-        return self.request("GET", "/api/prime/trading/v1/accounts", {}, {}).json()[
-            "data"
-        ]
+        return self.request("GET", "/accounts", {}, {}).json()["data"]
 
     def get_account_balance(self, account_id: str) -> List[Balance]:
         """Get balance information about a single trading account.
@@ -55,9 +65,9 @@ class BitGoRESTClient:
         Returns: List[Balance]
         """
 
-        return self.request(
-            "GET", f"/api/prime/trading/v1/accounts/{account_id}/balances", {}, {}
-        ).json()["data"]
+        return self.request("GET", f"/accounts/{account_id}/balances", {}, {}).json()[
+            "data"
+        ]
 
     def list_orders(
         self,
@@ -83,7 +93,7 @@ class BitGoRESTClient:
 
         for res in self.paginated_request(
             "GET",
-            f"/api/prime/trading/v1/accounts/{account_id}/orders",
+            f"/accounts/{account_id}/orders",
             {
                 "offset": offset,
                 "limit": limit,
@@ -125,7 +135,7 @@ class BitGoRESTClient:
 
         return self.request(
             "POST",
-            f"/api/prime/trading/v1/accounts/{account_id}/orders",
+            f"/accounts/{account_id}/orders",
             {},
             {
                 "clientOrderId": client_order_id,
@@ -171,7 +181,7 @@ class BitGoRESTClient:
 
         return self.request(
             "POST",
-            f"/api/prime/trading/v1/accounts/{account_id}/orders",
+            f"/accounts/{account_id}/orders",
             {},
             {
                 "clientOrderId": client_order_id,
@@ -223,7 +233,7 @@ class BitGoRESTClient:
 
         return self.request(
             "POST",
-            f"/api/prime/trading/v1/accounts/{account_id}/orders",
+            f"/accounts/{account_id}/orders",
             {},
             {
                 "clientOrderId": client_order_id,
@@ -251,7 +261,7 @@ class BitGoRESTClient:
 
         return self.request(
             "GET",
-            f"/api/prime/trading/v1/accounts/{account_id}/orders/{order_id}",
+            f"/accounts/{account_id}/orders/{order_id}",
             {},
             {},
         ).json()
@@ -268,7 +278,7 @@ class BitGoRESTClient:
 
         self.request(
             "PUT",
-            f"/api/prime/trading/v1/accounts/{account_id}/orders/{order_id}/cancel",
+            f"/accounts/{account_id}/orders/{order_id}/cancel",
             {},
             {},
         )
@@ -297,7 +307,7 @@ class BitGoRESTClient:
 
         for res in self.paginated_request(
             "GET",
-            f"/api/prime/trading/v1/accounts/{account_id}/trades",
+            f"/accounts/{account_id}/trades",
             {
                 "offset": offset,
                 "limit": limit,
@@ -308,3 +318,76 @@ class BitGoRESTClient:
             {},
         ):
             yield res.json()
+
+    def get_trade(self, account_id: str, trade_id: str) -> Trade:
+        """Get the details of a single trade by trade id.
+
+        Args:
+            account_id (str): The id of the trading account to retrieve.
+            trade_id (str): The id of the trade to retrieve.
+        """
+
+        return self.request(
+            "GET",
+            f"/accounts/{account_id}/trades/{trade_id}",
+            {},
+            {},
+        ).json()
+
+    def list_currencies(self, account_id: str) -> List[Currency]:
+        """Gets a list of all available currencies.
+
+        Args:
+            account_id (str): The id of the trading account to retrieve.
+        """
+
+        return self.request(
+            "GET",
+            f"/accounts/{account_id}/currencies",
+            {},
+            {},
+        ).json()["data"]
+
+    def list_products(self, account_id: str) -> List[Product]:
+        """Gets a list of all available products.
+
+        Args:
+            account_id (str): The id of the trading account to retrieve.
+        """
+
+        return self.request(
+            "GET",
+            f"/accounts/{account_id}/products",
+            {},
+            {},
+        ).json()["data"]
+
+    def get_level_one(self, account_id: str, product: str) -> Level1:
+        """Gets a snapshot of the level1 order book for product
+
+        Args:
+            account_id (str): The id of the trading account to retrieve.
+            product (str): Product name e.g. BTC-USD.
+        """
+
+        return self.request(
+            "GET",
+            f"/accounts/{account_id}/products/{product}/level1",
+            {},
+            {},
+        ).json()
+
+    def get_level_two(self, account_id: str, product: str) -> Level2:
+        """Gets a snapshot of the level2 order book for product
+
+        Args:
+            account_id (str): The id of the trading account to retrieve.
+            product (str): Product name e.g. BTC-USD.
+        """
+
+        return self.request(
+            "GET",
+            f"/accounts/{account_id}/products/{product}/level2",
+            {},
+            {},
+        ).json()

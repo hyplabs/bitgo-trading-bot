@@ -1,16 +1,16 @@
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 
 class Order(TypedDict):
     id: str
     accountId: str
-    clientOrderId: str
+    clientOrderId: Optional[str]
     time: str
     creationDate: str
-    scheduledDate: str
-    lastFillDate: str
+    scheduledDate: Optional[str]
+    lastFillDate: Optional[str]
     completionDate: str
-    settleDate: str
+    settleDate: Optional[str]
     type: str
     fundingType: str
     status: str
