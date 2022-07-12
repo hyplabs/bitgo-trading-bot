@@ -14,6 +14,7 @@ class Order(TypedDict):
     type: str
     fundingType: str
     status: str
+    product: str
     side: str
     quantity: str
     quantityCurrency: str

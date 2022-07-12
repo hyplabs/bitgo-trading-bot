@@ -1,3 +1,4 @@
+from ctypes import Union
 from typing import Iterator, List, Optional
 
 from pybitgo.rest.trade.schema import (
@@ -26,9 +27,12 @@ class BitGoRESTClient:
 
         with Session() as session:
             session.headers.update({"Authorization": "Bearer " + self.token})
-            return session.request(
-                method, self.base_url + url, params=params, json=json
-            )
+            res = session.request(method, self.base_url + url, params=params, json=json)
+
+            if res.status_code == 200:
+                return res
+
+        raise Exception(res.json())
 
     def paginated_request(
         self, method: str, url: str, params: dict, json: dict
@@ -43,31 +47,33 @@ class BitGoRESTClient:
     def get_current_user(self) -> User:
         """Get the current user's public information.
 
-        Returns: GetCurrentUserResponseSchema
+        Returns: User
         """
 
         return self.request("GET", "/user/current", {}, {}).json()
 
-    def list_accounts(self) -> List[Account]:
+    def list_accounts(self) -> Iterator[Account]:
         """Get the list of trading accounts that the current user belongs to.
 
-        Returns: List[Account]
+        Yields: Account
         """
 
-        return self.request("GET", "/accounts", {}, {}).json()["data"]
+        for account in self.request("GET", "/accounts", {}, {}).json()["data"]:
+            yield account
 
-    def get_account_balance(self, account_id: str) -> List[Balance]:
+    def get_account_balance(self, account_id: str) -> Iterator[Balance]:
         """Get balance information about a single trading account.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
 
-        Returns: List[Balance]
+        Yields: Balance
         """
 
-        return self.request("GET", f"/accounts/{account_id}/balances", {}, {}).json()[
-            "data"
-        ]
+        for balance in self.request(
+            "GET", f"/accounts/{account_id}/balances", {}, {}
+        ).json()["data"]:
+            yield balance
 
     def list_orders(
         self,
@@ -77,7 +83,7 @@ class BitGoRESTClient:
         client_order_id: Optional[str] = None,
         date_gte: Optional[str] = None,
         date_lt: Optional[str] = None,
-    ) -> Iterator[List[Order]]:
+    ) -> Iterator[Order]:
         """Lists all orders from the given trading account.
 
         Args:
@@ -89,6 +95,8 @@ class BitGoRESTClient:
                 than or equal to the given timestamp
             date_lt (str): Return client orders with a creationDate that is less than
                 the given timestamp
+
+        Yields: Order
         """
 
         for res in self.paginated_request(
@@ -103,7 +111,8 @@ class BitGoRESTClient:
             },
             {},
         ):
-            yield res.json()["data"]
+            for order in res.json()["data"]:
+                yield order
 
     def place_market_order(
         self,
@@ -291,7 +300,7 @@ class BitGoRESTClient:
         order_id: Optional[str],
         date_gte: Optional[str],
         date_lt: Optional[str],
-    ) -> Iterator[List[Trade]]:
+    ) -> Iterator[Trade]:
         """Lists trades from the trading account. This will include trades that have
         not yet settled.
 
@@ -303,6 +312,8 @@ class BitGoRESTClient:
                 than or equal to the given timestamp
             date_gte (str): Return exchange trades with a trade date that is less than
                 the given timestamp
+
+        Yields: Trade
         """
 
         for res in self.paginated_request(
@@ -317,7 +328,8 @@ class BitGoRESTClient:
             },
             {},
         ):
-            yield res.json()
+            for trade in res.json()["data"]:
+                yield trade
 
     def get_trade(self, account_id: str, trade_id: str) -> Trade:
         """Get the details of a single trade by trade id.
@@ -325,6 +337,8 @@ class BitGoRESTClient:
         Args:
             account_id (str): The id of the trading account to retrieve.
             trade_id (str): The id of the trade to retrieve.
+
+        Returns: Trade
         """
 
         return self.request(
@@ -334,33 +348,39 @@ class BitGoRESTClient:
             {},
         ).json()
 
-    def list_currencies(self, account_id: str) -> List[Currency]:
+    def list_currencies(self, account_id: str) -> Iterator[Currency]:
         """Gets a list of all available currencies.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
+
+        Yields: Currency
         """
 
-        return self.request(
+        for currency in self.request(
             "GET",
             f"/accounts/{account_id}/currencies",
             {},
             {},
-        ).json()["data"]
+        ).json()["data"]:
+            yield currency
 
-    def list_products(self, account_id: str) -> List[Product]:
+    def list_products(self, account_id: str) -> Iterator[Product]:
         """Gets a list of all available products.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
+
+        Yields: Product
         """
 
-        return self.request(
+        for product in self.request(
             "GET",
             f"/accounts/{account_id}/products",
             {},
             {},
-        ).json()["data"]
+        ).json()["data"]:
+            yield product
 
     def get_level_one(self, account_id: str, product: str) -> Level1:
         """Gets a snapshot of the level1 order book for product
@@ -368,6 +388,8 @@ class BitGoRESTClient:
         Args:
             account_id (str): The id of the trading account to retrieve.
             product (str): Product name e.g. BTC-USD.
+
+        Returns: Level1
         """
 
         return self.request(
@@ -383,6 +405,8 @@ class BitGoRESTClient:
         Args:
             account_id (str): The id of the trading account to retrieve.
             product (str): Product name e.g. BTC-USD.
+
+        Returns: Level2
         """
 
         return self.request(
