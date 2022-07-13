@@ -10,9 +10,8 @@ class TestRestTrade(TestCase):
             os.environ["BITGO_ACCESS_TOKEN"],
             "https://app.bitgo-test.com/api/prime/trading/v1",
         )
-        account = next(client.list_accounts())
 
-        return account["id"]
+        return next(client.list_accounts())["id"]
 
     def test_get_current_user(self):
         client = BitGoRESTClient(
@@ -143,10 +142,10 @@ class TestRestTrade(TestCase):
             "https://app.bitgo-test.com/api/prime/trading/v1",
         )
 
-        level_one = client.get_level_one(self._get_account_id(), "TBTC-TUSD*")
+        level1 = client.get_level1(self._get_account_id(), "TBTC-TUSD*")
         self.assertTrue(
             all(
-                k in level_one
+                k in level1
                 for k in [
                     "time",
                     "product",
@@ -164,10 +163,10 @@ class TestRestTrade(TestCase):
             "https://app.bitgo-test.com/api/prime/trading/v1",
         )
 
-        level_two = client.get_level_two(self._get_account_id(), "TBTC-TUSD*")
+        level2 = client.get_level2(self._get_account_id(), "TBTC-TUSD*")
         self.assertTrue(
             all(
-                k in level_two
+                k in level2
                 for k in [
                     "time",
                     "product",

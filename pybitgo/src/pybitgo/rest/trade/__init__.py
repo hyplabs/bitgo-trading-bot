@@ -1,17 +1,16 @@
-from ctypes import Union
-from typing import Iterator, List, Optional
+from typing import Iterator, Optional
 
-from pybitgo.rest.trade.schema import (
+from pybitgo.schema import (
     Account,
     Balance,
     Currency,
     Level1,
     Level2,
     Order,
+    Product,
     Trade,
     User,
 )
-from pybitgo.rest.trade.schema.product import Product
 from requests import Response, Session
 
 
@@ -382,7 +381,7 @@ class BitGoRESTClient:
         ).json()["data"]:
             yield product
 
-    def get_level_one(self, account_id: str, product: str) -> Level1:
+    def get_level1(self, account_id: str, product: str) -> Level1:
         """Gets a snapshot of the level1 order book for product
 
         Args:
@@ -399,7 +398,7 @@ class BitGoRESTClient:
             {},
         ).json()
 
-    def get_level_two(self, account_id: str, product: str) -> Level2:
+    def get_level2(self, account_id: str, product: str) -> Level2:
         """Gets a snapshot of the level2 order book for product
 
         Args:
