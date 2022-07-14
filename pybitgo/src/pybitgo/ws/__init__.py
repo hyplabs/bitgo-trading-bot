@@ -4,7 +4,7 @@ from typing import List
 from websocket import ABNF, WebSocketApp
 
 
-class BitGoWSlient(WebSocketApp):
+class BitGoWSClient(WebSocketApp):
     def __init__(
         self, token: str, url: str = "wss://app.bitgo.com/api/prime/trading/v1/ws"
     ):
@@ -19,7 +19,11 @@ class BitGoWSlient(WebSocketApp):
         )
         self.subscriptions: List[str] = []
 
-    def subscribe_level2(self, account_id: str, product_id: str) -> "BitGoWSlient":
+    def subscribe_level2(self, account_id: str, product_id: str) -> "BitGoWSClient":
+        """
+        The level2 Channel will provide a feed of snapshots of the order book.
+        """
+
         self.subscriptions.append(
             json.dumps(
                 {
@@ -33,13 +37,19 @@ class BitGoWSlient(WebSocketApp):
 
         return self
 
-    def subscribe_order(self, account_id: str) -> "BitGoWSlient":
+    def subscribe_orders(self, account_id: str) -> "BitGoWSClient":
+        """
+        The orders channel provides updates to client orders and will let you know if
+        an order is: Created, Completed, Canceled, or if there is an Error. This
+        channel will also provide updates to individual fills within an order.
+        """
+
         self.subscriptions.append(
             json.dumps(
                 {
                     "type": "subscribe",
                     "accountId": account_id,
-                    "channel": "order",
+                    "channel": "orders",
                 }
             )
         )
@@ -56,20 +66,11 @@ class BitGoWSlient(WebSocketApp):
     def on_error(self, err):
         print(err)
 
-    def on_ping(self, *args):
+    def on_ping(self, *_):
+        """
+        The websocket connection is only valid for 60 seconds if no messages are
+        sent/recieved. To keep the connection alive, the client must respond to PING
+        frames with a PONG.
+        """
+
         self.send("", ABNF.OPCODE_PONG)
-
-
-if __name__ == "__main__":
-    import os
-
-    client = BitGoWSlient(
-        os.environ["BITGO_ACCESS_TOKEN"],
-        "wss://app.bitgo-test.com/api/prime/trading/v1/ws",
-    )
-
-    try:
-        client.subscribe_level2("").run_forever()
-
-    except KeyboardInterrupt:
-        client.close()

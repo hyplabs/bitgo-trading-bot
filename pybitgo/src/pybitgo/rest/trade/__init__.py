@@ -44,7 +44,8 @@ class BitGoRESTClient:
             yield (res := self.request(method, url, params, json))
 
     def get_current_user(self) -> User:
-        """Get the current user's public information.
+        """
+        Get the current user's public information.
 
         Returns: User
         """
@@ -52,7 +53,8 @@ class BitGoRESTClient:
         return self.request("GET", "/user/current", {}, {}).json()
 
     def list_accounts(self) -> Iterator[Account]:
-        """Get the list of trading accounts that the current user belongs to.
+        """
+        Get the list of trading accounts that the current user belongs to.
 
         Yields: Account
         """
@@ -61,7 +63,8 @@ class BitGoRESTClient:
             yield account
 
     def get_account_balance(self, account_id: str) -> Iterator[Balance]:
-        """Get balance information about a single trading account.
+        """
+        Get balance information about a single trading account.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -83,7 +86,8 @@ class BitGoRESTClient:
         date_gte: Optional[str] = None,
         date_lt: Optional[str] = None,
     ) -> Iterator[Order]:
-        """Lists all orders from the given trading account.
+        """
+        Lists all orders from the given trading account.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -122,7 +126,8 @@ class BitGoRESTClient:
         quantity_currency: str,
         client_order_id: Optional[str] = None,
     ) -> Order:
-        """Places a new Market order. Orders can only be placed if your account has a
+        """
+        Places a new Market order. Orders can only be placed if your account has a
         sufficient balance. When an order is placed, funds will be reserved for the
         amount of the order.
 
@@ -166,7 +171,8 @@ class BitGoRESTClient:
         client_order_id: Optional[str] = None,
         duration: Optional[int] = None,
     ) -> Order:
-        """Places a new Limit order. Orders can only be placed if your account has a
+        """
+        Places a new Limit order. Orders can only be placed if your account has a
         sufficient balance. When an order is placed, funds will be reserved for the
         amount of the order.
 
@@ -216,9 +222,10 @@ class BitGoRESTClient:
         limit_price: Optional[str] = None,
         schedule_date: Optional[str] = None,
     ) -> Order:
-        """Places a new TWAP order (with or without a limit). Orders can only be placed
-        if your account has a sufficient balance. When an order is placed, funds will
-        be reserved for the amount of the order.
+        """
+        Places a new TWAP order (with or without a limit). Orders can only be placed if
+        your account has a sufficient balance. When an order is placed, funds will be
+        reserved for the amount of the order.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -258,7 +265,8 @@ class BitGoRESTClient:
         ).json()
 
     def get_order(self, account_id: str, order_id: str) -> Order:
-        """Get a single order by order id.
+        """
+        Get a single order by order id.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -275,8 +283,9 @@ class BitGoRESTClient:
         ).json()
 
     def cancel_order(self, account_id: str, order_id: str):
-        """Attempt to cancel an order that was previously placed. The response will
-        return successful if the cancel request is submitted. Use Get Order endpoint or
+        """
+        Attempt to cancel an order that was previously placed. The response will return
+        successful if the cancel request is submitted. Use Get Order endpoint or
         subscribe to the orders websocket to get the order details.
 
         Args:
@@ -300,8 +309,9 @@ class BitGoRESTClient:
         date_gte: Optional[str],
         date_lt: Optional[str],
     ) -> Iterator[Trade]:
-        """Lists trades from the trading account. This will include trades that have
-        not yet settled.
+        """
+        Lists trades from the trading account. This will include trades that have not
+        yet settled.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -331,7 +341,8 @@ class BitGoRESTClient:
                 yield trade
 
     def get_trade(self, account_id: str, trade_id: str) -> Trade:
-        """Get the details of a single trade by trade id.
+        """
+        Get the details of a single trade by trade id.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -348,7 +359,8 @@ class BitGoRESTClient:
         ).json()
 
     def list_currencies(self, account_id: str) -> Iterator[Currency]:
-        """Gets a list of all available currencies.
+        """
+        Gets a list of all available currencies.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -365,7 +377,8 @@ class BitGoRESTClient:
             yield currency
 
     def list_products(self, account_id: str) -> Iterator[Product]:
-        """Gets a list of all available products.
+        """
+        Gets a list of all available products.
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -382,7 +395,8 @@ class BitGoRESTClient:
             yield product
 
     def get_level1(self, account_id: str, product: str) -> Level1:
-        """Gets a snapshot of the level1 order book for product
+        """
+        Gets a snapshot of the level1 order book for product
 
         Args:
             account_id (str): The id of the trading account to retrieve.
@@ -399,7 +413,8 @@ class BitGoRESTClient:
         ).json()
 
     def get_level2(self, account_id: str, product: str) -> Level2:
-        """Gets a snapshot of the level2 order book for product
+        """
+        Gets a snapshot of the level2 order book for product
 
         Args:
             account_id (str): The id of the trading account to retrieve.
