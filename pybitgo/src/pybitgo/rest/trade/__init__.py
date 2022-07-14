@@ -1,6 +1,6 @@
 from typing import Iterator, Optional
 
-from pybitgo.schema import (
+from pybitgo.rest.schema import (
     Account,
     Balance,
     Currency,
