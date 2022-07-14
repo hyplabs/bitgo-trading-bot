@@ -1,6 +1,8 @@
+# Python
+venv/
+
 # VS Code
 .vscode/
 
-# Misc
+# Misc.
 .DS_STORE
-
